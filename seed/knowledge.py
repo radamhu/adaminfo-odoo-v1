@@ -1,3 +1,5 @@
+import xmlrpc.client
+
 TOP_ARTICLES = [
     {
         'name': '[SEED] Onboarding Guide',
@@ -76,7 +78,11 @@ CHILD_ARTICLES = [
 
 
 def seed(client) -> None:
-    existing = client.search_read('knowledge.article', [('name', 'like', '[SEED]')], ['name'])
+    try:
+        existing = client.search_read('knowledge.article', [('name', 'like', '[SEED]')], ['name'])
+    except xmlrpc.client.Fault:
+        print('  knowledge: knowledge module not installed, skipping')
+        return
     existing_names = {r['name'] for r in existing}
     parent_ids: dict = {}
     created = 0
@@ -107,7 +113,11 @@ def seed(client) -> None:
 
 
 def wipe(client) -> None:
-    records = client.search_read('knowledge.article', [('name', 'like', '[SEED]')], ['id'])
+    try:
+        records = client.search_read('knowledge.article', [('name', 'like', '[SEED]')], ['id'])
+    except xmlrpc.client.Fault:
+        print('  knowledge: knowledge module not installed, nothing to wipe')
+        return
     if not records:
         print('  knowledge: nothing to wipe')
         return

@@ -59,7 +59,7 @@ def test_wipe_cancels_confirmed_then_unlinks():
         {'id': 2, 'state': 'draft'},
     ]
     wipe(client)
-    client.execute.assert_called_once_with('sale.order', 'action_cancel', [1])
+    client.write.assert_called_once_with('sale.order', [1], {'state': 'cancel'})
     client.unlink.assert_called_once_with('sale.order', [1, 2])
 
 

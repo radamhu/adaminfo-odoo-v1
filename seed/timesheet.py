@@ -1,5 +1,6 @@
 import itertools
 import random
+import xmlrpc.client
 from datetime import date, timedelta
 
 ENTRY_COUNT = 40
@@ -18,7 +19,20 @@ _ALL_DESCRIPTIONS = _HU_DESCRIPTIONS + _EN_DESCRIPTIONS
 _DURATIONS = [0.5, 1.0, 1.5, 2.0, 3.0, 4.0, 6.0, 8.0]
 
 
+def _has_project_timesheet(client) -> bool:
+    """Return True only if account.analytic.line has project_id (project.timesheet installed)."""
+    try:
+        client.search_read('account.analytic.line', [('id', '=', -1)], ['project_id'], limit=1)
+        return True
+    except xmlrpc.client.Fault:
+        return False
+
+
 def seed(client) -> None:
+    if not _has_project_timesheet(client):
+        print('  timesheet: project.timesheet module not installed, skipping')
+        return
+
     existing = client.search_read(
         'account.analytic.line', [('name', 'like', '[SEED]')], ['id']
     )
@@ -36,14 +50,14 @@ def seed(client) -> None:
         'project.task', [('project_id', 'in', project_ids)], ['id', 'project_id']
     )
 
-    employees = client.search_read('hr.employee', [('user_id.name', 'ilike', 'admin')], ['id'])
-    if not employees:
-        employees = client.search_read('hr.employee', [], ['id'], limit=1)
-    employee_id = employees[0]['id'] if employees else False
-
-    if not employee_id:
-        print('  timesheet: no employee found, skipping')
-        return
+    employee_id = False
+    try:
+        employees = client.search_read('hr.employee', [('user_id.name', 'ilike', 'admin')], ['id'])
+        if not employees:
+            employees = client.search_read('hr.employee', [], ['id'], limit=1)
+        employee_id = employees[0]['id'] if employees else False
+    except xmlrpc.client.Fault:
+        pass  # HR module not installed; create entries without employee_id
 
     today = date.today()
     project_cycle = itertools.cycle(project_ids)
@@ -55,14 +69,16 @@ def seed(client) -> None:
         task = next(task_cycle)
         task_id = task['id'] if task else False
         entry_date = today - timedelta(days=random.randint(0, 59))
-        client.create('account.analytic.line', {
+        vals = {
             'name': next(desc_cycle),
             'project_id': project_id,
             'task_id': task_id,
-            'employee_id': employee_id,
             'date': str(entry_date),
             'unit_amount': random.choice(_DURATIONS),
-        })
+        }
+        if employee_id:
+            vals['employee_id'] = employee_id
+        client.create('account.analytic.line', vals)
 
     print(f'  timesheet: {ENTRY_COUNT} entries created')
 

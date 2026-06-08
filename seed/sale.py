@@ -81,9 +81,9 @@ def wipe(client) -> None:
     if not orders:
         print('  sale: nothing to wipe')
         return
-    to_cancel = [o['id'] for o in orders if o['state'] in ('sale', 'done')]
+    to_cancel = [o['id'] for o in orders if o['state'] in ('sale', 'done', 'sent')]
     if to_cancel:
-        client.execute('sale.order', 'action_cancel', to_cancel)
+        client.write('sale.order', to_cancel, {'state': 'cancel'})
     ids = [o['id'] for o in orders]
     client.unlink('sale.order', ids)
     print(f'  sale: {len(ids)} orders deleted')

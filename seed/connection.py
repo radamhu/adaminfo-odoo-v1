@@ -9,8 +9,8 @@ class OdooClient:
         self.url = url.rstrip('/')
         self.db = db
         self.password = password
-        self._common = xmlrpc.client.ServerProxy(f'{self.url}/xmlrpc/2/common')
-        self._models = xmlrpc.client.ServerProxy(f'{self.url}/xmlrpc/2/object')
+        self._common = xmlrpc.client.ServerProxy(f'{self.url}/xmlrpc/2/common', allow_none=True)
+        self._models = xmlrpc.client.ServerProxy(f'{self.url}/xmlrpc/2/object', allow_none=True)
         self.uid = self._common.authenticate(db, username, password, {})
         if not self.uid:
             raise ValueError(f'Authentication failed for user {username}')

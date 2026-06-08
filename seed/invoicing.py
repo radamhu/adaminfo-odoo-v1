@@ -89,8 +89,8 @@ def wipe(client) -> None:
         print('  invoicing: nothing to wipe')
         return
     posted_ids = [i['id'] for i in invoices if i['state'] == 'posted']
-    if posted_ids:
-        client.execute('account.move', 'button_draft', posted_ids)
+    for iid in posted_ids:
+        client.execute('account.move', 'button_draft', [iid])
     ids = [i['id'] for i in invoices]
     client.unlink('account.move', ids)
     print(f'  invoicing: {len(ids)} invoices deleted')
