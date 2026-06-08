@@ -48,9 +48,11 @@ def _detect_db(url: str) -> str:
         dbs = xmlrpc.client.ServerProxy(f'{base}/xmlrpc/2/db').list()
         if dbs:
             return dbs[0]
-    except Exception:
+    except (xmlrpc.client.Fault, OSError):
         pass
     hostname = urlparse(url).hostname or ''
+    if not hostname:
+        raise ValueError(f'Invalid Odoo URL: {url} — could not extract hostname')
     return hostname.split('.')[0]
 
 
