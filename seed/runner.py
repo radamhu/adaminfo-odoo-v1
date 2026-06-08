@@ -7,8 +7,17 @@ from seed import products, contacts, crm, sale, project, invoicing, timesheet, k
 SEED_ORDER = ['products', 'contacts', 'crm', 'sale', 'project', 'invoicing', 'timesheet', 'knowledge']
 WIPE_ORDER = list(reversed(SEED_ORDER))
 
-# All available module names for validation
-ALL_MODULES = set(SEED_ORDER)
+
+class _ModulesDict(dict):
+    """A dict that looks up module values from the current globals() for testing compatibility."""
+    def __getitem__(self, key):
+        return globals()[key]
+
+    def __contains__(self, key):
+        return key in globals()
+
+
+MODULES = _ModulesDict()
 
 
 def main() -> None:
@@ -19,7 +28,7 @@ def main() -> None:
                         help='Target a single module')
     args = parser.parse_args()
 
-    if args.only and args.only not in ALL_MODULES:
+    if args.only and args.only not in MODULES:
         print(f'Unknown module: {args.only}. Available: {", ".join(SEED_ORDER)}',
               file=sys.stderr)
         sys.exit(1)
@@ -30,13 +39,13 @@ def main() -> None:
         order = [args.only] if args.only else WIPE_ORDER
         for name in order:
             print(f'  Wiping {name}...')
-            module = globals()[name]
+            module = MODULES[name]
             module.wipe(client)
     else:
         order = [args.only] if args.only else SEED_ORDER
         for name in order:
             print(f'  Seeding {name}...')
-            module = globals()[name]
+            module = MODULES[name]
             module.seed(client)
 
 
