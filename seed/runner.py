@@ -9,12 +9,12 @@ WIPE_ORDER = list(reversed(SEED_ORDER))
 
 
 class _ModulesDict(dict):
-    """A dict that looks up module values from the current globals() for testing compatibility."""
+    """Proxies __getitem__ to globals() so test patches on module-level names are visible."""
     def __getitem__(self, key):
         return globals()[key]
 
     def __contains__(self, key):
-        return key in globals()
+        return key in SEED_ORDER
 
 
 MODULES = _ModulesDict()
