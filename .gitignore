@@ -1,0 +1,23 @@
+# Environment / secrets — never commit
+.env.dev
+.env.prod
+.env.*.local
+.env.local
+
+# Python
+.venv/
+__pycache__/
+*.py[cod]
+*.egg-info/
+
+# OS
+.DS_Store
+Thumbs.db
+
+# IDE
+.vscode/
+.idea/
+
+# Odoo
+*.log
+filestore/

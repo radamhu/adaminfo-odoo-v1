@@ -56,8 +56,8 @@ def _detect_db(url: str) -> str:
     return hostname.split('.')[0]
 
 
-def get_client() -> OdooClient:
-    load_dotenv('.env.dev')
+def get_client(env_file: str = '.env.dev') -> OdooClient:
+    load_dotenv(env_file, override=True)
     url = os.environ['ODOO_ERP_URL']
     username = os.environ['ODOO_LOGIN_USERNAME']
     password = os.environ['ODOO_LOGIN_PASSWORD']
