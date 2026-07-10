@@ -1,0 +1,20 @@
+{
+    "name": "Customer Operations Dashboard",
+    "version": "18.0.1.0.0",
+    "summary": "Per-customer financial and operational metrics on the partner form",
+    "category": "Customer Relationship Management",
+    "author": "Adaminfo",
+    "license": "LGPL-3",
+    "depends": [
+        "contacts",
+        "sale",
+        "account",
+        "hr_timesheet",
+        "hr_employee_cost_history",
+        "helpdesk_mgmt",
+        "helpdesk_mgmt_sla",
+    ],
+    "data": [],
+    "installable": True,
+    "application": False,
+}
