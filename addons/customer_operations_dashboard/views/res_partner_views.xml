@@ -13,13 +13,13 @@
                         <group string="Financial" invisible="period_scope != 'month'">
                             <field name="revenue_month" readonly="1"/>
                             <field name="margin_month" readonly="1"/>
-                            <field name="margin_pct_month" widget="percentage" readonly="1"/>
+                            <field name="margin_pct_month" readonly="1"/>
                             <field name="labor_cost_month" readonly="1"/>
                         </group>
                         <group string="Financial" invisible="period_scope != 'all_time'">
                             <field name="revenue_total" readonly="1"/>
                             <field name="margin_total" readonly="1"/>
-                            <field name="margin_pct_total" widget="percentage" readonly="1"/>
+                            <field name="margin_pct_total" readonly="1"/>
                             <field name="labor_cost_total" readonly="1"/>
                         </group>
                         <group string="Operations" invisible="period_scope != 'month'">
