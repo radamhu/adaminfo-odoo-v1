@@ -21,3 +21,6 @@ Thumbs.db
 # Odoo
 *.log
 filestore/
+
+# Superpowers scratch state
+.superpowers/
