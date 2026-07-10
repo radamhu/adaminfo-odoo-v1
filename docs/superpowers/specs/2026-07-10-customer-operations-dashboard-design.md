@@ -15,6 +15,7 @@ Odoo-native metrics only. The infra-facing metrics from README's full vision (AW
 - Hours Used
 - Open Tickets
 - SLA %
+- Monthly historical snapshots of the above, with a trend graph
 
 AWS Cost, Cluster Health, Certificates, and Domains are explicitly **out of scope** for this spec and will be added once their source modules exist.
 
@@ -23,7 +24,7 @@ AWS Cost, Cluster Health, Certificates, and Domains are explicitly **out of scop
 - Path: `addons/customer_operations_dashboard/`
 - Target: Odoo 18
 - Depends: `contacts`, `sale`, `account`, `hr_timesheet`, `hr_employee_cost_history` (OCA timesheet repo), `helpdesk_mgmt` (OCA), `helpdesk_mgmt_sla` (OCA)
-- No new persistent models. All new fields are compute fields added to `res.partner` via inheritance.
+- New model: `customer.operations.snapshot` (monthly history for trend graph — see below). All current-value fields remain compute fields on `res.partner` via inheritance.
 
 ## Fields & Formulas
 
@@ -46,6 +47,20 @@ All fields below are added to `res.partner`, non-stored (`compute=`, no `store=T
 - Division by zero in `x_margin_pct` → returns `0`.
 - Individual contacts (non-company) with direct invoices/tickets are computed the same way as companies — no `is_company` restriction on the computation itself (only on tab visibility, see below).
 
+## Historical Snapshots & Trend Graph
+
+**Model**: `customer.operations.snapshot`
+- Fields: `partner_id` (many2one, required), `period_date` (date, first-of-month, required), `revenue`, `margin`, `margin_pct`, `labor_cost`, `hours`, `open_tickets`, `sla_percent` (all the same semantics as the corresponding live compute fields, frozen at snapshot time).
+- SQL constraint: unique on `(partner_id, period_date)` — one snapshot per partner per month.
+
+**Cron**: `Customer Operations: Monthly Snapshot`, scheduled to run at the start of each month (e.g. 1st at 01:00), computing the *previous* completed month's values for every partner that has any activity (invoice, timesheet, or ticket) in that month, and creating one `customer.operations.snapshot` record each. Idempotent: if a snapshot for that partner/month already exists, skip (supports safe re-runs / manual trigger).
+
+**Current (in-progress) month**: not snapshotted until the cron runs at next month's start. The trend graph shows historical months from `customer.operations.snapshot` plus the current month's live compute value appended as the most recent (unfinalized) data point, so the graph always ends with "now."
+
+**Retention**: rolling 24 months. A second, lower-frequency cron (`Customer Operations: Snapshot Cleanup`, e.g. monthly) deletes `customer.operations.snapshot` records with `period_date` older than 24 months.
+
+**Graph placement**: embedded in the same "Operations" tab on the partner form, below the stat boxes — a small line/bar chart (Odoo's inline graph view, e.g. `<graph>` embedded via a one2many-style widget, or a simple client-side chart widget reading `customer.operations.snapshot` filtered to `partner_id=self`) showing the last 24 months per metric, one chart per metric or a combined chart with metric selector. No separate menu item or standalone reporting view — stays inside the partner-centric surface per README's Option 1 rationale.
+
 ## View
 
 - Inherit `view_partner_form` (from `contacts`/`base`).
@@ -55,6 +70,7 @@ All fields below are added to `res.partner`, non-stored (`compute=`, no `store=T
   - **Financial group**: Revenue, Margin, Margin %, Labor Cost (secondary/muted display)
   - **Operations group**: Hours Used, Open Tickets, SLA %
   - A "This Month" / "All-Time" toggle (backed by a transient, non-stored `x_period_scope` selection field, default `month`) switches which of the paired fields are visible — implemented with `invisible` attrs, no page reload.
+  - Below the stat groups: the trend graph described above.
 - All fields in this tab are read-only (`readonly="1"`) — this is a reporting surface, not a data-entry form.
 - No new menu items, no new top-level module surface — matches README's Option 1 reasoning explicitly.
 
@@ -69,9 +85,12 @@ Cases to cover:
 4. Partner linked via multiple projects → hours and labor cost aggregate across all of them.
 5. Open ticket count excludes tickets in a closed-marked stage.
 6. SLA % reflects `helpdesk_mgmt_sla`'s compliance computation for the partner's tickets (not reimplemented locally).
+7. Monthly snapshot cron creates exactly one `customer.operations.snapshot` per active partner for the completed prior month, with frozen values matching what the live compute fields would have shown at that time.
+8. Snapshot cron is idempotent — re-running it for a month that already has snapshots does not create duplicates (enforced by the unique SQL constraint and skip-if-exists logic).
+9. Retention cron deletes snapshots older than 24 months and leaves newer ones untouched.
+10. Trend graph renders historical snapshot months plus the current in-progress month's live value as the latest point.
 
 ## Out of Scope (v1)
 
 - AWS Cost, Cluster Health, Certificate/Domain expiry (blocked on Cloud/Kubernetes Inventory modules not yet built).
-- Stored/historical snapshots — all values are computed live, so there is no trend/graph view in v1.
-- Any new top-level "Operations" menu (deferred per README until customer count/operator count justifies it — see README Option 2).
+- Any new top-level "Operations" menu or standalone reporting view (deferred per README until customer count/operator count justifies it — see README Option 2). Snapshots are stored, but only surfaced via the graph embedded in the partner form's Operations tab.
