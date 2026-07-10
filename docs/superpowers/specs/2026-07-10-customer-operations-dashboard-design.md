@@ -24,7 +24,8 @@ AWS Cost, Cluster Health, Certificates, and Domains are explicitly **out of scop
 - Path: `addons/customer_operations_dashboard/`
 - Target: Odoo 18
 - Depends: `contacts`, `sale`, `account`, `hr_timesheet`, `hr_employee_cost_history` (OCA timesheet repo), `helpdesk_mgmt` (OCA), `helpdesk_mgmt_sla` (OCA)
-- New model: `customer.operations.snapshot` (monthly history for trend graph — see below). All current-value fields remain compute fields on `res.partner` via inheritance.
+- New model: `customer.operations.report` (`_auto=False`, PostgreSQL-view-backed, monthly aggregation for trend graph — see below). All current-value fields remain compute fields on `res.partner` via inheritance.
+- No local Odoo installation exists in this repo; dev/prod are remote cloud instances reachable only via XML-RPC (see `.env.dev`/`.env.prod`, `seed/connection.py`). Deployment = commit to this repo; ops triggers an environment-based redeploy that installs/upgrades the addon on the target instance. There is no local `odoo-bin --test-enable` run available — correctness is checked via static validation (syntax/XML well-formedness) locally, and functional verification happens against the dev instance after deploy (via the existing `OdooClient` XML-RPC wrapper in `seed/connection.py`, or manual UI check).
 
 ## Fields & Formulas
 
@@ -47,19 +48,16 @@ All fields below are added to `res.partner`, non-stored (`compute=`, no `store=T
 - Division by zero in `x_margin_pct` → returns `0`.
 - Individual contacts (non-company) with direct invoices/tickets are computed the same way as companies — no `is_company` restriction on the computation itself (only on tab visibility, see below).
 
-## Historical Snapshots & Trend Graph
+## Historical Trend: SQL-View Reporting Model
 
-**Model**: `customer.operations.snapshot`
-- Fields: `partner_id` (many2one, required), `period_date` (date, first-of-month, required), `revenue`, `margin`, `margin_pct`, `labor_cost`, `hours`, `open_tickets`, `sla_percent` (all the same semantics as the corresponding live compute fields, frozen at snapshot time).
-- SQL constraint: unique on `(partner_id, period_date)` — one snapshot per partner per month.
+Follows Odoo's standard reporting-model pattern (same technique as core `sale.report` / `account.invoice.report`): a model with `_auto=False` backed by a PostgreSQL `VIEW` defined in `init()`, instead of a stored/cron-populated table. Postgres computes the aggregation on every query, so the current in-progress month is always present and always fresh — no cron, no snapshot staleness, no "finalize last month" logic.
 
-**Cron**: `Customer Operations: Monthly Snapshot`, scheduled to run at the start of each month (e.g. 1st at 01:00), computing the *previous* completed month's values for every partner that has any activity (invoice, timesheet, or ticket) in that month, and creating one `customer.operations.snapshot` record each. Idempotent: if a snapshot for that partner/month already exists, skip (supports safe re-runs / manual trigger).
+**Model**: `customer.operations.report` (`_auto=False`)
+- Fields (one row per `partner_id` × calendar month): `partner_id`, `date` (first-of-month, the groupby key), `revenue`, `labor_cost`, `margin`, `margin_pct`, `hours`, `open_tickets`, `sla_percent`. All fields `readonly=True` (standard for `_auto=False` models).
+- `init()` builds the view via `tools.drop_view_if_exists` + `CREATE VIEW ... AS SELECT`, joining/aggregating `account_move` (+ lines), `account_analytic_line` (timesheets, joined to `hr_employee_cost_history` for the rate), and `helpdesk_ticket` (+ `helpdesk_mgmt_sla` compliance data), grouped by `partner_id` and `date_trunc('month', ...)`.
+- Retention: the view itself filters to `WHERE date >= (now() - interval '24 months')` — "retention" is just a `WHERE` clause, not a cleanup job.
 
-**Current (in-progress) month**: not snapshotted until the cron runs at next month's start. The trend graph shows historical months from `customer.operations.snapshot` plus the current month's live compute value appended as the most recent (unfinalized) data point, so the graph always ends with "now."
-
-**Retention**: rolling 24 months. A second, lower-frequency cron (`Customer Operations: Snapshot Cleanup`, e.g. monthly) deletes `customer.operations.snapshot` records with `period_date` older than 24 months.
-
-**Graph placement**: embedded in the same "Operations" tab on the partner form, below the stat boxes — a small line/bar chart (Odoo's inline graph view, e.g. `<graph>` embedded via a one2many-style widget, or a simple client-side chart widget reading `customer.operations.snapshot` filtered to `partner_id=self`) showing the last 24 months per metric, one chart per metric or a combined chart with metric selector. No separate menu item or standalone reporting view — stays inside the partner-centric surface per README's Option 1 rationale.
+**Graph placement**: embedded in the "Operations" tab on the partner form as an inline `<graph>` (and/or `<pivot>`) view on `customer.operations.report`, domain-filtered to the current partner, grouped by month. Since the view is computed live, the graph's last bar/point is always "this month so far" — no separate live-value injection needed. No separate menu item or standalone reporting action — stays inside the partner-centric surface per README's Option 1 rationale.
 
 ## View
 
@@ -76,21 +74,27 @@ All fields below are added to `res.partner`, non-stored (`compute=`, no `store=T
 
 ## Testing
 
-Standard Odoo `TransactionCase` tests (not the live XML-RPC seeder in `seed/` — that tooling targets a real running instance; tests here use `Model.create`/`env.ref` fixtures created directly in the test transaction).
+**Constraint**: no local Odoo installation is available in this repo/environment (confirmed — dev/prod are remote cloud instances, reachable only via XML-RPC per `.env.dev`/`.env.prod`). Standard Odoo `TransactionCase` tests (the idiomatic way to test `_auto=False` view models and compute fields) are written as part of the module, live under `addons/customer_operations_dashboard/tests/`, and are the correct long-term test suite — but they run under Odoo's own test runner (`-i customer_operations_dashboard --test-enable`), which requires an actual Odoo server. This repo cannot execute that locally.
 
-Cases to cover:
+Two-tier verification, both real, both used:
+1. **Local static checks** (run in this repo, no Odoo needed): `python -m py_compile` on every `.py` file, and `xmllint --noout` on every `.xml` file. Catches syntax errors and malformed XML before anything is committed.
+2. **Post-deploy functional verification** (after commit triggers ops redeploy to the dev instance): a verification script using the existing `seed/connection.py` `OdooClient` XML-RPC wrapper reads back computed field values (and, once the view exists, `customer.operations.report` rows) for a known seeded partner and asserts expected numbers. This is the actual pass/fail signal for correctness, since it exercises the real installed module against real data.
+
+The `TransactionCase` test files are still written (correct practice, will run whenever the module is installed/upgraded with `--test-enable` on any Odoo instance, including future CI if ops adds it) — they are just not exercised by this repo's own tooling today.
+
+Cases to cover (as `TransactionCase` tests in the module, and mirrored by the XML-RPC verification script's assertions where practical):
 1. Partner with zero invoices/timesheets/tickets → all computed fields are `0`.
 2. Partner with invoices in the current month vs. a prior month → month vs. all-time totals split correctly.
 3. Margin % divide-by-zero guard when revenue is `0`.
 4. Partner linked via multiple projects → hours and labor cost aggregate across all of them.
 5. Open ticket count excludes tickets in a closed-marked stage.
 6. SLA % reflects `helpdesk_mgmt_sla`'s compliance computation for the partner's tickets (not reimplemented locally).
-7. Monthly snapshot cron creates exactly one `customer.operations.snapshot` per active partner for the completed prior month, with frozen values matching what the live compute fields would have shown at that time.
-8. Snapshot cron is idempotent — re-running it for a month that already has snapshots does not create duplicates (enforced by the unique SQL constraint and skip-if-exists logic).
-9. Retention cron deletes snapshots older than 24 months and leaves newer ones untouched.
-10. Trend graph renders historical snapshot months plus the current in-progress month's live value as the latest point.
+7. `customer.operations.report` has exactly one row per partner per month with activity, aggregating revenue/labor_cost/hours/tickets correctly for that month.
+8. The current (in-progress) month appears in `customer.operations.report` with partial-month figures (proves the view is live, not cron-populated).
+9. Rows older than 24 months are excluded from `customer.operations.report`.
 
 ## Out of Scope (v1)
 
 - AWS Cost, Cluster Health, Certificate/Domain expiry (blocked on Cloud/Kubernetes Inventory modules not yet built).
-- Any new top-level "Operations" menu or standalone reporting view (deferred per README until customer count/operator count justifies it — see README Option 2). Snapshots are stored, but only surfaced via the graph embedded in the partner form's Operations tab.
+- Any new top-level "Operations" menu or standalone reporting view (deferred per README until customer count/operator count justifies it — see README Option 2). The trend graph is surfaced only embedded in the partner form's Operations tab.
+- Any cron jobs — the SQL-view architecture makes them unnecessary for this feature.
