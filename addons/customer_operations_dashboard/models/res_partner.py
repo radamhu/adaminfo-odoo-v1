@@ -42,6 +42,19 @@ class ResPartner(models.Model):
     hours_total = fields.Float(
         string="Hours Used (All-Time)", compute="_compute_operations_financials",
     )
+    open_tickets_count = fields.Integer(
+        string="Open Tickets", compute="_compute_operations_tickets",
+    )
+    sla_percent_month = fields.Float(
+        string="SLA % (This Month)", compute="_compute_operations_tickets",
+    )
+    sla_percent_total = fields.Float(
+        string="SLA % (All-Time)", compute="_compute_operations_tickets",
+    )
+    period_scope = fields.Selection(
+        [("month", "This Month"), ("all_time", "All-Time")],
+        string="Period", default="month",
+    )
 
     def _operations_timesheet_domain(self, partner):
         return [
@@ -112,3 +125,34 @@ class ResPartner(models.Model):
             )
             partner.hours_total = sum(all_lines.mapped("unit_amount"))
             partner.hours_month = sum(month_lines.mapped("unit_amount"))
+
+    def _operations_sla_percent(self, partner, extra_domain):
+        sla_model = self.env["helpdesk.ticket.sla"]
+        slas = sla_model.search(
+            [
+                ("ticket_id.partner_id", "=", partner.id),
+                ("state", "in", ["accomplished", "expired"]),
+            ]
+            + extra_domain
+        )
+        total = len(slas)
+        if not total:
+            return 0.0
+        accomplished = len(slas.filtered(lambda s: s.state == "accomplished"))
+        return accomplished / total * 100
+
+    @api.depends()
+    def _compute_operations_tickets(self):
+        ticket_model = self.env["helpdesk.ticket"]
+        month_start = date.today().replace(day=1)
+        for partner in self:
+            partner.open_tickets_count = ticket_model.search_count(
+                [
+                    ("partner_id", "=", partner.id),
+                    ("stage_id.closed", "=", False),
+                ]
+            )
+            partner.sla_percent_total = self._operations_sla_percent(partner, [])
+            partner.sla_percent_month = self._operations_sla_percent(
+                partner, [("ticket_id.create_date", ">=", month_start)]
+            )
