@@ -3,7 +3,7 @@ import py_compile
 import xml.dom.minidom
 from pathlib import Path
 
-ADDON_DIR = Path(__file__).resolve().parent.parent / "addons" / "customer_operations_dashboard"
+ADDON_DIR = Path(__file__).resolve().parent.parent / "customer_operations_dashboard"
 
 
 def _python_files():
