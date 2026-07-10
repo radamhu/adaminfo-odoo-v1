@@ -14,7 +14,9 @@
         "helpdesk_mgmt",
         "helpdesk_mgmt_sla",
     ],
-    "data": [],
+    "data": [
+        "security/ir.model.access.csv",
+    ],
     "installable": True,
     "application": False,
 }

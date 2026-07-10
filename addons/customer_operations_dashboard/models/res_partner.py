@@ -55,6 +55,10 @@ class ResPartner(models.Model):
         [("month", "This Month"), ("all_time", "All-Time")],
         string="Period", default="month",
     )
+    operations_report_ids = fields.One2many(
+        "customer.operations.report", "partner_id",
+        string="Operations Monthly Report", readonly=True,
+    )
 
     def _operations_timesheet_domain(self, partner):
         return [
