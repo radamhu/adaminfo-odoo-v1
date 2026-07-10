@@ -34,6 +34,15 @@
                         </group>
                     </group>
                     <field name="operations_report_ids" nolabel="1">
+                        <list>
+                            <field name="date"/>
+                            <field name="revenue"/>
+                            <field name="margin"/>
+                            <field name="margin_pct"/>
+                            <field name="hours"/>
+                            <field name="tickets_created"/>
+                            <field name="sla_percent"/>
+                        </list>
                         <graph type="line" string="Trend">
                             <field name="date" interval="month"/>
                             <field name="revenue" type="measure"/>
