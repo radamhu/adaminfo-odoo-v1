@@ -1,3 +1,5 @@
+from dotenv import load_dotenv
+
 from seed.connection import OdooClient
 
 OPERATIONS_FIELDS = [
@@ -23,6 +25,8 @@ def fetch_operations_fields(url, db, username, password, partner_id):
 if __name__ == "__main__":
     import argparse
     import os
+
+    load_dotenv()
 
     parser = argparse.ArgumentParser(
         description="Print Customer Operations Dashboard fields for a partner on a live instance."

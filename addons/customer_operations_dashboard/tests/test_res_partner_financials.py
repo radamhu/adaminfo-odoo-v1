@@ -24,14 +24,14 @@ class TestResPartnerFinancials(TransactionCase):
             "move_type": "out_invoice",
             "invoice_date": today,
             "state": "draft",
-            "invoice_line_ids": [(0, 0, {"name": "Service", "price_unit": 1000, "quantity": 1})],
+            "invoice_line_ids": [(0, 0, {"name": "Service", "price_unit": 1000, "quantity": 1, "tax_ids": [(6, 0, [])]})],
         }).action_post()
         self.env["account.move"].create({
             "partner_id": self.partner.id,
             "move_type": "out_invoice",
             "invoice_date": prior_month,
             "state": "draft",
-            "invoice_line_ids": [(0, 0, {"name": "Service", "price_unit": 500, "quantity": 1})],
+            "invoice_line_ids": [(0, 0, {"name": "Service", "price_unit": 500, "quantity": 1, "tax_ids": [(6, 0, [])]})],
         }).action_post()
         self.assertEqual(self.partner.revenue_month, 1000)
         self.assertEqual(self.partner.revenue_total, 1500)

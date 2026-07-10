@@ -20,7 +20,7 @@ class TestCustomerOperationsReport(TransactionCase):
             "move_type": "out_invoice",
             "invoice_date": date.today(),
             "state": "draft",
-            "invoice_line_ids": [(0, 0, {"name": "Service", "price_unit": 700, "quantity": 1})],
+            "invoice_line_ids": [(0, 0, {"name": "Service", "price_unit": 700, "quantity": 1, "tax_ids": [(6, 0, [])]})],
         }).action_post()
         row = self.env["customer.operations.report"].search(
             [("partner_id", "=", self.partner.id)]
@@ -36,7 +36,7 @@ class TestCustomerOperationsReport(TransactionCase):
                 "move_type": "out_invoice",
                 "invoice_date": date.today(),
                 "state": "draft",
-                "invoice_line_ids": [(0, 0, {"name": "Service", "price_unit": 100, "quantity": 1})],
+                "invoice_line_ids": [(0, 0, {"name": "Service", "price_unit": 100, "quantity": 1, "tax_ids": [(6, 0, [])]})],
             }).action_post()
         rows = self.env["customer.operations.report"].search(
             [("partner_id", "=", self.partner.id)]
