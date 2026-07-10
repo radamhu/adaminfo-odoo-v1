@@ -43,14 +43,6 @@
                             <field name="tickets_created"/>
                             <field name="sla_percent"/>
                         </list>
-                        <graph type="line" string="Trend">
-                            <field name="date" interval="month"/>
-                            <field name="revenue" type="measure"/>
-                            <field name="margin" type="measure"/>
-                            <field name="hours" type="measure"/>
-                            <field name="tickets_created" type="measure"/>
-                            <field name="sla_percent" type="measure"/>
-                        </graph>
                     </field>
                 </page>
             </notebook>
