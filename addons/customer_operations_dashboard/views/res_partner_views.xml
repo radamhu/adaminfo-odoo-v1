@@ -1,0 +1,50 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+    <record id="view_partner_form_operations" model="ir.ui.view">
+        <field name="name">res.partner.form.operations</field>
+        <field name="model">res.partner</field>
+        <field name="inherit_id" ref="base.view_partner_form"/>
+        <field name="arch" type="xml">
+            <notebook position="inside">
+                <page string="Operations" name="operations"
+                      invisible="revenue_total == 0 and hours_total == 0 and open_tickets_count == 0">
+                    <field name="period_scope" widget="radio" options="{'horizontal': true}"/>
+                    <group>
+                        <group string="Financial" invisible="period_scope != 'month'">
+                            <field name="revenue_month" readonly="1"/>
+                            <field name="margin_month" readonly="1"/>
+                            <field name="margin_pct_month" readonly="1"/>
+                            <field name="labor_cost_month" readonly="1"/>
+                        </group>
+                        <group string="Financial" invisible="period_scope != 'all_time'">
+                            <field name="revenue_total" readonly="1"/>
+                            <field name="margin_total" readonly="1"/>
+                            <field name="margin_pct_total" readonly="1"/>
+                            <field name="labor_cost_total" readonly="1"/>
+                        </group>
+                        <group string="Operations" invisible="period_scope != 'month'">
+                            <field name="hours_month" readonly="1"/>
+                            <field name="open_tickets_count" readonly="1"/>
+                            <field name="sla_percent_month" readonly="1"/>
+                        </group>
+                        <group string="Operations" invisible="period_scope != 'all_time'">
+                            <field name="hours_total" readonly="1"/>
+                            <field name="open_tickets_count" readonly="1"/>
+                            <field name="sla_percent_total" readonly="1"/>
+                        </group>
+                    </group>
+                    <field name="operations_report_ids" nolabel="1">
+                        <graph type="line" string="Trend">
+                            <field name="date" interval="month"/>
+                            <field name="revenue" type="measure"/>
+                            <field name="margin" type="measure"/>
+                            <field name="hours" type="measure"/>
+                            <field name="tickets_created" type="measure"/>
+                            <field name="sla_percent" type="measure"/>
+                        </graph>
+                    </field>
+                </page>
+            </notebook>
+        </field>
+    </record>
+</odoo>
