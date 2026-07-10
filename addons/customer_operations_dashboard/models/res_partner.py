@@ -74,6 +74,10 @@ class ResPartner(models.Model):
         move_model = self.env["account.move"]
         analytic_model = self.env["account.analytic.line"]
         month_start = date.today().replace(day=1)
+        if month_start.month == 12:
+            next_month_start = month_start.replace(year=month_start.year + 1, month=1)
+        else:
+            next_month_start = month_start.replace(month=month_start.month + 1)
         for partner in self:
             invoice_domain = [
                 ("partner_id", "=", partner.id),
@@ -82,14 +86,14 @@ class ResPartner(models.Model):
             ]
             all_invoices = move_model.search(invoice_domain)
             month_invoices = all_invoices.filtered(
-                lambda m: m.invoice_date and m.invoice_date >= month_start
+                lambda m: m.invoice_date and m.invoice_date >= month_start and m.invoice_date < next_month_start
             )
             revenue_total = sum(all_invoices.mapped("amount_total"))
             revenue_month = sum(month_invoices.mapped("amount_total"))
 
             all_lines = analytic_model.search(self._operations_timesheet_domain(partner))
             month_lines = all_lines.filtered(
-                lambda l: l.date and l.date >= month_start
+                lambda l: l.date and l.date >= month_start and l.date < next_month_start
             )
             labor_cost_total = self._operations_labor_cost(all_lines)
             labor_cost_month = self._operations_labor_cost(month_lines)
