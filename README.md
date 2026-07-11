@@ -21,6 +21,22 @@ Depends on: `contacts`, `sale`, `account`, `hr_timesheet`, `hr_employee_cost_his
 
 Install by placing the addon on your Odoo instance's addons path and enabling it from Apps.
 
+### Operations tab "Revenue" vs core "Invoiced" button — not the same number
+
+The partner form's **Operations tab → Revenue** and the standard **Invoiced** smart button (from Odoo's `account`/`sale` core, not this addon) are computed by two independent code paths and will diverge:
+
+| | Operations tab `revenue_total`/`revenue_month` | Core `total_invoiced` (Invoiced button) |
+|---|---|---|
+| Source | `res_partner.py: _compute_operations_financials` | Odoo core (not in this addon) |
+| Tax | **Tax-included** (`amount_total`) | **Tax-excluded** (untaxed amount) |
+| Credit notes | Ignored — invoices only | Netted against invoices |
+| Contacts | Exact `partner_id` match only | Rolls up child contacts too |
+| Company | No `company_id` filter | Scoped to allowed companies |
+| Currency | Raw sum, no conversion | Converted to company currency |
+| Period | Month bucket + all-time | All-time only |
+
+In practice the tax difference is usually the biggest driver — e.g. a customer with one $73,907.05 invoice (15% tax) shows `revenue_total = 73,907.05` on the Operations tab but `total_invoiced = 64,267.00` on the Invoiced button. Before treating a mismatch as a bug, check whether the customer also has credit notes, child contacts with their own invoices, or invoices across multiple companies/currencies — any of those compound the gap further.
+
 ## Demo
 
 <video src="operations_dashboard_demo.mp4" controls width="600"></video>
