@@ -77,3 +77,18 @@ Tests hit the Odoo instance configured in `.env.dev` over XML-RPC — no mocking
 ## Environment variables
 
 See `.env.example`. Never commit `.env.dev` / `.env.prod` (already gitignored).
+
+## Deploying a ticket
+
+Use Claude Code skill `odoo-oecsh-ticket-deploy` (`~/.claude/skills/odoo-oecsh-ticket-deploy/SKILL.md`) for end-to-end ticket → deploy → verify runbook, this repo included:
+
+1. Read ticket (Jira/Linear/GitHub Issues)
+2. Code change, commit, push to branch target env tracks
+3. Redeploy target env via oec.sh API (`api.oec.sh/api/public/v1`, not SSH+git pull)
+4. Poll deploy status till done (~180s)
+5. Playwright: activate dev mode, upgrade module (search technical name first — don't click Upgrade off unfiltered Apps list, silently misfires)
+6. Verify live (real field value in accessibility snapshot, not just "no error")
+7. Screenshot (`fullPage: true`)
+8. Comment on ticket: commit hash, env, what got verified
+
+Needs oec.sh `full_access` API key + `env_id` per target env (from per-env `.env.*` file). Ask which repo/project/env/module if ambiguous — never deploy to prod-looking env without confirm.
