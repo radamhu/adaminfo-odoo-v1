@@ -48,3 +48,9 @@ Task 4 (restore to new server) executed 2026-09-06.
 - Server ID: `1bf4ace1-9eea-4da9-a6b0-8497f6877c9a`
 - URL: `https://adaminfo-prod-1139-1.apps.oec.sh`
 - Status: `running`
+
+**⚠️ HAZARD: Environment name collision**
+
+The new environment's `name` field is `adaminfo-prod-1139`, which is **byte-identical to the old, still-running environment's name** (old env id: `cca3f63b-f16d-4b42-85f0-fb11827aa263`, new env id: `c0672b12-b1b6-43c9-8414-7917246d0136`). 
+
+This makes `OecshClient.find_environment('adaminfo-prod-1139')` non-deterministic — it will return whichever environment the API lists first, silently, with no error. The `migration/preflight.py` script relies on this method. **Until the old environment is deleted (Task 7) or one of the two is renamed, any invocation of `find_environment()` or `preflight.py` with the name `'adaminfo-prod-1139'` is ambiguous.** Resolution must go by id or URL instead: use `find_environment_by_id('c0672b12-b1b6-43c9-8414-7917246d0136')` for the new env, or match on URL.
