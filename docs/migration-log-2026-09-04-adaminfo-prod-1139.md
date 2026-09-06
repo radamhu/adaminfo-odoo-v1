@@ -32,3 +32,19 @@ Logged into `https://adaminfo-prod-1139.apps.oec.sh` as `admin` (credentials fro
 - Scheduled Actions: 26 cron jobs, all under Settings → Technical → Automation → Scheduled Actions (dev mode enabled via `?debug=1`), listed with name + active state in `docs/superpowers/specs/migration-baseline/baseline.md`. Screenshot: `docs/superpowers/specs/migration-baseline/scheduled-actions-old.png` (full-page).
 
 This is the pre-migration "before" snapshot. Task 5 (post-restore) will re-capture the same two lists on the new server and diff against `baseline.md`.
+
+## Restore
+
+Task 4 (restore to new server) executed 2026-09-06.
+
+**Restore via oec.sh dashboard:**
+- Backup used: `b85da376-aad5-44d0-8890-0e22f4a9a8e7` (from Preflight, completed 2026-09-06 12:08:34 UTC)
+- Target server: `instance-20260822-0943` (1bf4ace1-9eea-4da9-a6b0-8497f6877c9a)
+- Restore completion time: reported by human at 2026-09-06, approximately 15:00 UTC (environment created_at 2026-09-06T14:52:28.623803Z, updated_at 2026-09-06T15:00:13.888306Z)
+
+**New environment details (resolved via API):**
+- Name: `adaminfo-prod-1139`
+- ID: `c0672b12-b1b6-43c9-8414-7917246d0136`
+- Server ID: `1bf4ace1-9eea-4da9-a6b0-8497f6877c9a`
+- URL: `https://adaminfo-prod-1139-1.apps.oec.sh`
+- Status: `running`
