@@ -1,11 +1,23 @@
 // ===================================================================
 // Theme: Website Adaminfo Theme
-// PREPENDED before Odoo core — DO NOT use map-merge() here.
+// PREPENDED before Odoo core.
 //
 // Brand locked 2026-10-05 (see docs/superpowers/specs/2026-10-05-
 // adaminfo-website-design.md "Brand direction — locked"), colors
 // sampled directly from static/src/img/adaminformatika_logo.png and
 // matched against the Figma mockup (figma.com/design/3QAM2X6wAc7ZiZohAKUyja).
+//
+// Color palette wiring (2026-10-05, 2nd attempt): a plain REPLACE of
+// $o-color-palettes previously broke core's compile — it wiped out
+// 'base-1'/'base-2' entries core's own primary_variables.scss depends
+// on via map-get($o-color-palettes, 'base-1'). Read Odoo 18 core source
+// directly on adaminfo-dev-1869 (docker exec into the Odoo container)
+// and found the real, officially-shipped pattern in
+// odoo/addons/theme_test_custo/static/src/scss/primary_variables.scss:
+// map-merge (not replace) + register the name via
+// $o-selected-color-palettes-names so it shows in the Website Builder's
+// own color-palette picker — giving designers real UI control instead
+// of the dev-only plain-CSS workaround from the 1st attempt.
 // ===================================================================
 
 $o-theme-font-configs: (
@@ -19,15 +31,26 @@ $o-theme-font-configs: (
     ),
 );
 
-// A standalone $o-color-palettes assignment broke core's own SCSS
-// compile (map-merge($o-color-palettes, ...) in core's primary_variables.scss
-// errored "must be a map" — confirmed live on adaminfo-dev-1869, 2026-10-05).
-// Reverted to the documented-safe pattern: reference an existing core
-// palette by name, apply actual brand colors as plain CSS in theme.scss
-// instead of touching core's Sass maps.
+$o-color-palettes: map-merge($o-color-palettes,
+    (
+        'adaminfo': (
+            'o-color-1': #D9A74A, // gold accent — buttons, links
+            'o-color-2': #B4966A, // dimmer gold — secondary/borders
+            'o-color-3': #091C30, // navy-light — cards, badges, footer
+            'o-color-4': #001323, // navy — page/header/hero bg
+            'o-color-5': #F5F5F5, // off-white — headings/body text on dark bg
+
+            'menu': 4,
+            'footer': 3,
+            'copyright': 3,
+        ),
+    )
+);
+$o-selected-color-palettes-names: append($o-selected-color-palettes-names, 'adaminfo');
+
 $o-website-values-palettes: (
     (
-        'color-palettes-name': 'default-1',
+        'color-palettes-name': 'adaminfo',
 
         'font': 'Inter',
         'headings-font': 'Playfair Display', // h1 only in practice — h2-h6 reset to Inter below

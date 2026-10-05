@@ -1,50 +1,8 @@
-// Brand colors applied as plain CSS, not core $o-color-palettes (that
-// broke core's SCSS compile — see primary_variables.scss comment).
-// Sampled from the real logo/banner; see spec "Brand direction — locked".
-$adaminfo-navy: #001323;
-$adaminfo-navy-light: #091C30;
-$adaminfo-gold: #D9A74A;
-$adaminfo-gold-dim: #B4966A;
-$adaminfo-offwhite: #F5F5F5;
-
-body {
-    background-color: $adaminfo-navy;
-    color: $adaminfo-offwhite;
-}
-
-#wrapwrap > header,
-#wrapwrap > header .navbar,
-#wrapwrap > footer {
-    background-color: $adaminfo-navy-light !important;
-}
-
-#wrapwrap > header .nav-link,
-#wrapwrap > header .navbar-brand {
-    color: $adaminfo-gold !important;
-}
-
-#wrap h1, #wrap h2, #wrap h3, #wrap h4, #wrap h5, #wrap h6 {
-    color: $adaminfo-offwhite;
-}
-
-a, .nav-link {
-    color: $adaminfo-gold;
-}
-a:hover {
-    color: $adaminfo-gold-dim;
-}
-
-.btn-primary {
-    background-color: $adaminfo-gold !important;
-    border-color: $adaminfo-gold !important;
-    color: $adaminfo-navy !important;
-}
-
-.badge {
-    background-color: $adaminfo-navy-light !important;
-    border: 1px solid $adaminfo-gold-dim;
-    color: $adaminfo-gold !important;
-}
+// Brand colors now come from the real 'adaminfo' $o-color-palettes entry
+// (see primary_variables.scss) via Odoo's own o_cc/o-color-N system —
+// not hardcoded here. Keeps the Website Builder's color picker in sync
+// with what's actually on the page instead of being overridden by
+// !important CSS a designer can't see or control.
 
 // Offsets anchor-nav section jumps so content doesn't land under the sticky header.
 #wrap section[id] {
