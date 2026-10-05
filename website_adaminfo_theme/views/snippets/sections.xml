@@ -59,13 +59,78 @@
         <section id="contact" class="oe_structure pt48 pb48">
             <div class="container">
                 <h2>Contact</h2>
-                <!-- TODO: embed Odoo's native website contact form here
-                     (website.contactus's s_website_form block) once verified
-                     against this Odoo version's actual snippet template id —
-                     not hand-authored, to avoid guessing internal markup. -->
-                <p>
-                    <a href="/contactus">Contact form</a>
-                    &#8226;
+                <!-- Real s_website_form markup, pulled verbatim from this env's
+                     own /contactus page (adaminfo-dev-1869) after the website
+                     module went live — not hand-authored. The hidden
+                     website_form_signature is a server-computed hash tied to
+                     this exact field set; don't trim fields without
+                     regenerating it through the Website Builder's own form
+                     editor. -->
+                <section class="s_website_form" data-vcss="001" data-snippet="s_website_form">
+                    <div class="container">
+                        <form id="contactus_form" action="/website/form/" method="post" enctype="multipart/form-data" class="o_mark_required" data-mark="*" data-model_name="mail.mail" data-success-mode="redirect" data-success-page="/contactus-thank-you" data-pre-fill="true">
+                            <div class="s_website_form_rows row s_col_no_bgcolor">
+                                <div class="mb-3 col-lg-6 s_website_form_field s_website_form_custom s_website_form_required" data-type="char" data-name="Field">
+                                    <label class="s_website_form_label" style="width: 200px" for="contact1">
+                                        <span class="s_website_form_label_content">Name</span>
+                                        <span class="s_website_form_mark"> *</span>
+                                    </label>
+                                    <input id="contact1" type="text" class="form-control s_website_form_input" name="name" required="required" data-fill-with="name"/>
+                                </div>
+                                <div class="mb-3 col-lg-6 s_website_form_field s_website_form_custom" data-type="char" data-name="Field">
+                                    <label class="s_website_form_label" style="width: 200px" for="contact2">
+                                        <span class="s_website_form_label_content">Phone Number</span>
+                                    </label>
+                                    <input id="contact2" type="tel" class="form-control s_website_form_input" name="phone" data-fill-with="phone"/>
+                                </div>
+                                <div class="mb-3 col-lg-6 s_website_form_field s_website_form_required s_website_form_model_required" data-type="email" data-name="Field">
+                                    <label class="s_website_form_label" style="width: 200px" for="contact3">
+                                        <span class="s_website_form_label_content">Email</span>
+                                        <span class="s_website_form_mark"> *</span>
+                                    </label>
+                                    <input id="contact3" type="email" class="form-control s_website_form_input" name="email_from" required="required" data-fill-with="email"/>
+                                </div>
+                                <div class="mb-3 col-lg-6 s_website_form_field s_website_form_custom" data-type="char" data-name="Field">
+                                    <label class="s_website_form_label" style="width: 200px" for="contact4">
+                                        <span class="s_website_form_label_content">Company</span>
+                                    </label>
+                                    <input id="contact4" type="text" class="form-control s_website_form_input" name="company" data-fill-with="commercial_company_name"/>
+                                </div>
+                                <div class="mb-3 col-12 s_website_form_field s_website_form_required s_website_form_model_required" data-type="char" data-name="Field">
+                                    <label class="s_website_form_label" style="width: 200px" for="contact5">
+                                        <span class="s_website_form_label_content">Subject</span>
+                                        <span class="s_website_form_mark"> *</span>
+                                    </label>
+                                    <input id="contact5" type="text" class="form-control s_website_form_input" name="subject" required="required"/>
+                                </div>
+                                <div class="mb-3 col-12 s_website_form_field s_website_form_custom s_website_form_required" data-type="text" data-name="Field">
+                                    <label class="s_website_form_label" style="width: 200px" for="contact6">
+                                        <span class="s_website_form_label_content">Question</span>
+                                        <span class="s_website_form_mark"> *</span>
+                                    </label>
+                                    <textarea id="contact6" class="form-control s_website_form_input" name="description" required="required" rows="8"/>
+                                </div>
+                                <div class="mb-3 col-12 s_website_form_field s_website_form_dnone">
+                                    <div class="row s_col_no_resize s_col_no_bgcolor">
+                                        <label class="col-form-label col-sm-auto s_website_form_label" style="width: 200px" for="contact7">
+                                            <span class="s_website_form_label_content">Email To</span>
+                                        </label>
+                                        <div class="col-sm">
+                                            <input id="contact7" type="hidden" class="form-control s_website_form_input" name="email_to"/>
+                                            <input type="hidden" value="910417fa8ea034bbe9c4cbf518f325148664fe76d1a84c182f81851ce5790920" class="form-control s_website_form_input s_website_form_custom" name="website_form_signature"/>
+                                        </div>
+                                    </div>
+                                </div>
+                                <div class="mb-0 py-2 col-12 s_website_form_submit s_website_form_no_submit_label text-end" data-name="Submit Button">
+                                    <div style="width: 200px;" class="s_website_form_label"/>
+                                    <a href="#" role="button" class="btn btn-primary s_website_form_send">Submit</a>
+                                    <span id="s_website_form_result"/>
+                                </div>
+                            </div>
+                        </form>
+                    </div>
+                </section>
+                <p class="pt-3">
                     <a href="#" target="_blank" rel="noopener">LinkedIn</a>
                     &#8226;
                     <a href="#" target="_blank" rel="noopener">GitHub</a>
