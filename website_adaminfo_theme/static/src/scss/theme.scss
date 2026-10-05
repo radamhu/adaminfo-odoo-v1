@@ -13,8 +13,14 @@ body {
 }
 
 #wrapwrap > header,
+#wrapwrap > header .navbar,
 #wrapwrap > footer {
     background-color: $adaminfo-navy-light !important;
+}
+
+#wrapwrap > header .nav-link,
+#wrapwrap > header .navbar-brand {
+    color: $adaminfo-gold !important;
 }
 
 #wrap h1, #wrap h2, #wrap h3, #wrap h4, #wrap h5, #wrap h6 {
