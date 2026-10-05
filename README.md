@@ -1,120 +1,101 @@
-## Customer Operations Dashboard
+# Customer Operations Dashboard
 
-Odoo 18 custom addon plus a Python-based seeding/testing toolkit that drives an Odoo instance over XML-RPC.
+Odoo 18 addons with Python tools for seeding and testing Odoo over XML-RPC.
 
-Repository layout :
+## Repository layout
 
+```text
+customer_operations_dashboard/  Customer financial and operational metrics
+website_adaminfo_theme/          adaminformatika.hu website theme
+seed/                            Demo/test data generators
+tests/                           Live XML-RPC integration tests
+docs/                            Project documentation
 ```
-customer_operations_dashboard/   Odoo addon: per-customer financial & operational metrics
-website_adaminfo_theme/          Odoo addon: adaminformatika.hu custom website theme
-seed/                            XML-RPC seed scripts (demo/test data generation)
-tests/                           pytest suite — exercises the live Odoo API via XML-RPC
-docs/                            project docs
-```
 
-Adds a read-only SQL view (`customer.operations.report`) and partner-form widgets showing, per customer per month:
+## Customer operations addon
 
-- Revenue, labor cost, margin, margin %
+Adds a read-only SQL view (`customer.operations.report`) and partner-form widgets with monthly customer metrics:
+
+- Revenue, labor cost, margin, and margin percentage
 - Timesheet hours
-- Helpdesk tickets created, SLA %
+- Helpdesk tickets and SLA percentage
 
-Depends on: `contacts`, `sale`, `account`, `hr_timesheet`, `hr_employee_cost_history`, `helpdesk_mgmt`, `helpdesk_mgmt_sla`.
+Dependencies: `contacts`, `sale`, `account`, `hr_timesheet`, `hr_employee_cost_history`, `helpdesk_mgmt`, and `helpdesk_mgmt_sla`.
 
-Install by placing the addon on your Odoo instance's addons path and enabling it from Apps.
+Install the addon from Apps after adding it to the Odoo addons path.
 
-### Operations tab "Revenue" vs core "Invoiced" button — not the same number
+### Revenue vs. Invoiced
 
-The partner form's **Operations tab → Revenue** and the standard **Invoiced** smart button (from Odoo's `account`/`sale` core, not this addon) are computed by two independent code paths and will diverge:
+The Operations tab's Revenue value and Odoo's Invoiced smart button use different calculations.
 
-| | Operations tab `revenue_total`/`revenue_month` | Core `total_invoiced` (Invoiced button) |
-|---|---|---|
-| Source | `res_partner.py: _compute_operations_financials` | Odoo core (not in this addon) |
-| Tax | **Tax-included** (`amount_total`) | **Tax-excluded** (untaxed amount) |
-| Credit notes | Ignored — invoices only | Netted against invoices |
-| Contacts | Exact `partner_id` match only | Rolls up child contacts too |
-| Company | No `company_id` filter | Scoped to allowed companies |
-| Currency | Raw sum, no conversion | Converted to company currency |
-| Period | Month bucket + all-time | All-time only |
+|              | Operations Revenue                                       | Core Invoiced           |
+| ------------ | -------------------------------------------------------- | ----------------------- |
+| Source       | `_compute_operations_financials` in `res_partner.py` | Odoo core               |
+| Tax          | Included (`amount_total`)                              | Excluded                |
+| Credit notes | Ignored                                                  | Netted against invoices |
+| Contacts     | Exact`partner_id`                                      | Includes child contacts |
+| Company      | No`company_id` filter                                  | Allowed companies only  |
+| Currency     | No conversion                                            | Company currency        |
+| Period       | Monthly and all-time                                     | All-time                |
 
-In practice the tax difference is usually the biggest driver — e.g. a customer with one $73,907.05 invoice (15% tax) shows `revenue_total = 73,907.05` on the Operations tab but `total_invoiced = 64,267.00` on the Invoiced button. Before treating a mismatch as a bug, check whether the customer also has credit notes, child contacts with their own invoices, or invoices across multiple companies/currencies — any of those compound the gap further.
+Check these differences before reporting a mismatch. Tax is usually the main cause.
 
-## Website Adaminfo Theme
+## Website theme addon
 
-Odoo 18 theme addon rebuilding adaminformatika.hu (personal portfolio
-site) as a single Website-Builder-editable page, replacing the old
-static HTML5-UP template. Design spec:
-`docs/superpowers/specs/2026-10-05-adaminfo-website-design.md`.
+`website_adaminfo_theme` rebuilds adaminformatika.hu as a Website Builder-editable page. See the [design specification](docs/superpowers/specs/2026-10-05-adaminfo-website-design.md).
 
-```
+```text
 website_adaminfo_theme/
-├── models/theme_website_adaminfo_theme.py   theme.utils post_copy hook
+├── models/theme_website_adaminfo_theme.py  Theme post-copy hook
 ├── static/src/scss/
-│   ├── primary_variables.scss   PREPENDED — fonts + $o-website-values-palettes only
-│   ├── colors.scss              NOT prepended — $o-color-palettes merge
-│   └── theme.scss               anchor-scroll offset for sticky header
-├── static/src/img/              real logo (adaminformatika_logo.png)
-├── views/snippets/sections.xml  Hero/About/Projects/Contact, incl. real
-│                                 s_website_form (not hand-authored — pulled
-│                                 live from this env's own /contactus page)
-└── data/                        menu.xml (anchor nav), website_logo.xml
+│   ├── primary_variables.scss              Fonts and website palette selection
+│   ├── colors.scss                         Color palette merge
+│   └── theme.scss                          Sticky-header scroll offset
+├── static/src/img/                         Logo
+├── views/snippets/sections.xml             Hero, About, Projects, and Contact
+└── data/                                   Menu and website logo records
 ```
 
-Brand (navy `#001323` / gold `#D9A74A`) wired through Odoo's **real**
-`$o-color-palettes` + `o_cc` system — selectable in Website Builder's
-own Theme → color picker, not hardcoded CSS. Took 4 deploy iterations
-to get right; worth knowing before touching this file again:
+The navy (`#001323`) and gold (`#D9A74A`) brand colors use Odoo's `$o-color-palettes` and `o_cc` system.
 
-1. **Don't replace `$o-color-palettes`, map-merge it.** A plain
-   `$o-color-palettes: (...)` assignment wipes out `base-1`/`base-2`
-   entries core's own SCSS depends on via `map-get()` — crashes with
-   `argument $map1 ... must be a map`.
-2. **Don't prepend the file with the `$o-color-palettes` merge.**
-   `prepend` means "before literally everything," including website
-   module's own foundational palette definition — `Undefined variable`.
-   Split into two files: `primary_variables.scss` stays prepended (only
-   for `$o-website-values-palettes`), `colors.scss` is NOT prepended
-   (normal dependency order, loads after website's own scss).
-3. **`'menu'`/`'footer'`/`'copyright'` are `o_cc` index numbers (1-5),
-   not `o-color-N` indices.** `o_cc4` → `o-color-1`, not `o-color-4`.
-   Confirmed from core's own `$o-base-color-palette` comment
-   (`'menu': 1, // o_cc1`).
-4. Register the palette name via
-   `$o-selected-color-palettes-names: append(...)` so it actually shows
-   up in the Builder's picker — same mechanism the official
-   `odoo/addons/theme_test_custo` reference module uses.
+### SCSS requirements
 
-When stuck on an SCSS compile error, read Odoo core's actual source
-rather than guessing — `docker exec <env_id>_odoo find /usr/lib/python3/dist-packages/odoo/addons -name primary_variables.scss`
-on the oec.sh host finds every shipped theme module plus core's own
-2000+-line `website/static/src/scss/primary_variables.scss`. A "css
-error occured, using an old style" banner in the Website Builder
-backend (not the plain frontend) is the signal a compile actually
-failed — the plain frontend silently falls back to an old cached style
-instead of showing anything.
+- Merge into `$o-color-palettes`; replacing it removes core palettes and breaks compilation.
+- Keep the palette merge in non-prepended `colors.scss`. Prepending it runs before Odoo defines the base palette.
+- Treat `menu`, `footer`, and `copyright` values as `o_cc` indexes (1–5), not `o-color-N` indexes.
+- Append the palette name to `$o-selected-color-palettes-names` so it appears in Website Builder.
 
-**Deploying this addon** (same oec.sh flow as below, with one addition):
-after `git push` + oec.sh redeploy, the module needs an explicit
-install/upgrade — `ir.module.module.button_immediate_install` (first
-install) or `button_immediate_upgrade` (subsequent changes) over
-XML-RPC, **and** clear cached asset bundles
-(`ir.attachment` where `name like 'assets_%'`, `unlink`) so the SCSS
-actually recompiles. Verify by checking the Website Builder backend
-(`/odoo/website`) for the css-error banner before trusting any
-screenshot of the plain frontend.
+For compile errors, inspect Odoo's shipped `primary_variables.scss` files. Website Builder (`/odoo/website`) shows CSS compilation errors; the public page may silently use cached assets.
 
-**Status (2026-10-05):** verified working on `adaminfo-dev-1869`
-(navy/gold render correctly, real contact form submits to `mail.mail`,
-no compile errors). **Not yet done:** end-to-end form-submission
-verification (confirm it actually lands in Odoo), install on
-`adaminfo-prod-1139`, DNS cutover. One known cosmetic bug left
-unfixed by request: Projects section card headings render in a broken
-fallback font.
+### Theme deployment
 
-## Demo
+After pushing and redeploying through oec.sh:
 
-<video src="operations_dashboard_demo.mp4" controls width="600"></video>
+1. Install or upgrade the module through `ir.module.module` XML-RPC (`button_immediate_install` or `button_immediate_upgrade`).
+2. Delete cached `ir.attachment` records whose names match `assets_%`.
+3. Check `/odoo/website` for CSS errors.
 
-[operations_dashboard_demo.mp4](operations_dashboard_demo.mp4) — Operations tab: revenue/margin/hours/tickets/SLA, All-Time toggle, monthly trend table.
+Status as of 2026-10-05: working on `adaminfo-dev-1869`. Remaining work: verify end-to-end contact form delivery, deploy to `adaminfo-prod-1139`, and cut over DNS. The Projects headings have a known fallback-font issue.
+
+### Guidelines for the web designer
+
+Once this is live on prod, a designer can do real day-to-day editing through the Website Builder UI alone — no dev, no code, no redeploy. Enter edit mode via the "Edit" button on the live site (admin login required).
+
+**Self-serve, no dev needed:**
+
+- **Page content** — Hero/About/Projects/Contact text and images: click into any section and edit inline (plain `oe_structure` blocks, that's what they're for)
+- **Colors** — Website Builder → Customize → Theme → color palette picker. The "adaminfo" navy/gold palette is a real, selectable entry (not hardcoded CSS) — pick it, tweak it, or switch to a different stock palette entirely
+- **Menu / nav items** — Website → Configuration → Menu, or drag-reorder inline
+- **Header/footer template** — Builder's header/footer customize panel (switch layout variant)
+- **Logo** — Builder's logo upload, under site settings
+- **Contact form fields** — Builder's own form editor (add/remove/relabel fields). Use the Builder's editor, not hand-edited XML — it recomputes the hidden signature hash itself; a manual XML edit won't
+
+**Still needs a dev:**
+
+- Adding a brand-new font not already registered in `$o-theme-font-configs` (currently Inter + Playfair Display)
+- New homepage sections, new pages, or structural layout changes beyond what a snippet/section supports
+- Anything touching `primary_variables.scss` / `colors.scss` directly — see the SCSS gotchas above before anyone goes near these files again
+- Redeploys, module upgrades, DNS/infra
 
 ## Setup
 
@@ -122,22 +103,26 @@ fallback font.
 python -m venv .venv
 source .venv/bin/activate
 pip install -r requirements.txt
-cp .env.example .env.dev   # fill in ODOO_ERP_URL, ODOO_LOGIN_USERNAME, ODOO_LOGIN_PASSWORD, ODOO_DB
+cp .env.example .env.dev
 ```
 
-`.envrc` (direnv) auto-activates `.venv` and loads `.env.dev` on `cd` into the repo.
+Set `ODOO_ERP_URL`, `ODOO_LOGIN_USERNAME`, `ODOO_LOGIN_PASSWORD`, and `ODOO_DB` in `.env.dev`.
+
+With direnv, `.envrc` activates `.venv` and loads `.env.dev` when entering the repository.
 
 ## Seeding data
 
 ```bash
-python -m seed.runner                    # seed all modules, in order
-python -m seed.runner --only crm         # seed a single module
-python -m seed.runner --wipe             # wipe all seeded data
-python -m seed.runner --wipe --only crm  # wipe a single module
-python -m seed.runner --env .env.prod    # target a different environment
+python -m seed.runner                    # Seed all modules
+python -m seed.runner --only crm         # Seed one module
+python -m seed.runner --wipe             # Wipe all seeded data
+python -m seed.runner --wipe --only crm  # Wipe one module
+python -m seed.runner --env .env.prod    # Use another environment
 ```
 
-Seed order: `products → contacts → crm → sale → project → invoicing → timesheet → knowledge`. `prod_sales` is available via `--only prod_sales` but not part of the default order.
+Default order: `products → contacts → crm → sale → project → invoicing → timesheet → knowledge`.
+
+`prod_sales` is available through `--only prod_sales` but is not included by default.
 
 ## Tests
 
@@ -145,23 +130,23 @@ Seed order: `products → contacts → crm → sale → project → invoicing �
 pytest
 ```
 
-Tests hit the Odoo instance configured in `.env.dev` over XML-RPC — no mocking of Odoo itself, only of `seed.runner`'s module dispatch in `test_runner.py`.
+Tests call the Odoo instance configured in `.env.dev`. Odoo is not mocked; only `seed.runner` module dispatch is mocked in `test_runner.py`.
 
 ## Environment variables
 
-See `.env.example`. Never commit `.env.dev` / `.env.prod` (already gitignored).
+See `.env.example`. Do not commit `.env.dev` or `.env.prod`; both are gitignored.
 
 ## Deploying a ticket
 
-Use Claude Code skill `odoo-oecsh-ticket-deploy` (`~/.claude/skills/odoo-oecsh-ticket-deploy/SKILL.md`) for end-to-end ticket → deploy → verify runbook, this repo included:
+Use the `odoo-oecsh-ticket-deploy` Claude Code skill at `~/.claude/skills/odoo-oecsh-ticket-deploy/SKILL.md`:
 
-1. Read ticket (Jira/Linear/GitHub Issues)
-2. Code change, commit, push to branch target env tracks
-3. Redeploy target env via oec.sh API (`api.oec.sh/api/public/v1`, not SSH+git pull)
-4. Poll deploy status till done (~180s)
-5. Playwright: activate dev mode, upgrade module (search technical name first — don't click Upgrade off unfiltered Apps list, silently misfires)
-6. Verify live (real field value in accessibility snapshot, not just "no error")
-7. Screenshot (`fullPage: true`)
-8. Comment on ticket: commit hash, env, what got verified
+1. Read the ticket.
+2. Implement, commit, and push the change to the target environment's branch.
+3. Redeploy through `api.oec.sh/api/public/v1`.
+4. Wait for deployment to finish.
+5. Enable developer mode and upgrade the module by technical name.
+6. Verify the live field value with Playwright.
+7. Capture a full-page screenshot.
+8. Comment on the ticket with the commit, environment, and verification result.
 
-Needs oec.sh `full_access` API key + `env_id` per target env (from per-env `.env.*` file). Ask which repo/project/env/module if ambiguous — never deploy to prod-looking env without confirm.
+Requires an oec.sh `full_access` API key and target `env_id` from the environment file. Confirm before deploying to production.
