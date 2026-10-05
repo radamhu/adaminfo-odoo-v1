@@ -14,9 +14,15 @@ $o-color-palettes: map-merge($o-color-palettes,
             'o-color-4': #001323, // navy — page/header/hero bg
             'o-color-5': #F5F5F5, // off-white — headings/body text on dark bg
 
-            'menu': 4,
-            'footer': 3,
-            'copyright': 3,
+            // These are o_cc INDEX numbers (1-5), NOT o-color-N indices —
+            // confirmed from core's $o-base-color-palette comment
+            // ('menu': 1, // o_cc1). Mapping: o_cc1->o-color-4,
+            // o_cc2->o-color-3, o_cc3->o-color-2, o_cc4->o-color-1,
+            // o_cc5->o-color-5. Want header/footer = o-color-3 (navy-
+            // light) = o_cc2.
+            'menu': 2,
+            'footer': 2,
+            'copyright': 2,
         ),
     )
 );
