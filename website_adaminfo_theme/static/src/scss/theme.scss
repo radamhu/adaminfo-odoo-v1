@@ -1,0 +1,4 @@
+// Offsets anchor-nav section jumps so content doesn't land under the sticky header.
+#wrap section[id] {
+    scroll-margin-top: var(--o-header-height, 4.5rem);
+}

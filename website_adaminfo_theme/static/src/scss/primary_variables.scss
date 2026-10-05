@@ -1,0 +1,74 @@
+// ===================================================================
+// Theme: Website Adaminfo Theme
+// PREPENDED before Odoo core — DO NOT use map-merge() here.
+//
+// Brand locked 2026-10-05 (see docs/superpowers/specs/2026-10-05-
+// adaminfo-website-design.md "Brand direction — locked"), colors
+// sampled directly from static/src/img/adaminformatika_logo.png and
+// matched against the Figma mockup (figma.com/design/3QAM2X6wAc7ZiZohAKUyja).
+// ===================================================================
+
+$o-theme-font-configs: (
+    'Inter': (
+        'family': ('Inter', sans-serif),
+        'url': 'Inter:300,300i,400,400i,500,500i,600,600i,700,700i',
+    ),
+    'Playfair Display': (
+        'family': ('Playfair Display', serif),
+        'url': 'Playfair+Display:400,400i,700,700i',
+    ),
+);
+
+// Standalone define (not map-merge — $o-color-palettes doesn't exist
+// yet at prepend time). Core's own primary_variables.scss defines
+// $o-color-palettes with `!default`, so this value wins and becomes
+// the file's only palette.
+$o-color-palettes: (
+    'adaminfo': (
+        'o-color-1': #D9A74A, // gold accent — buttons, links
+        'o-color-2': #B4966A, // dimmer gold — secondary/borders
+        'o-color-3': #091C30, // navy-light — cards, badges
+        'o-color-4': #001323, // navy — page/header/hero bg ("content bg")
+        'o-color-5': #091C30, // navy-light — footer bg
+
+        'menu': 4,
+        'footer': 5,
+        'copyright': 5,
+    ),
+);
+
+$o-website-values-palettes: (
+    (
+        'color-palettes-name': 'adaminfo',
+
+        'font': 'Inter',
+        'headings-font': 'Playfair Display', // h1 only in practice — h2-h6 reset to Inter below
+        'h2-font': 'Inter',
+        'h3-font': 'Inter',
+        'h4-font': 'Inter',
+        'h5-font': 'Inter',
+        'h6-font': 'Inter',
+        'navbar-font': 'Inter',
+        'buttons-font': 'Inter',
+
+        'header-template': 'default',
+        'logo-height': 3rem,
+        'fixed-logo-height': 2rem,
+
+        'btn-padding-y': 0.45rem,
+        'btn-padding-x': 1.35rem,
+        'btn-border-radius': 0.4rem,
+
+        'footer-template': 'minimalist',
+
+        'link-underline': 'hover',
+        'layout': 'full',
+    )
+);
+
+$o-theme-h1-font-size-multiplier: (64 / 16);
+$o-theme-h2-font-size-multiplier: (48 / 16);
+$o-theme-h3-font-size-multiplier: (32 / 16);
+$o-theme-h4-font-size-multiplier: (24 / 16);
+$o-theme-h5-font-size-multiplier: (20 / 16);
+$o-theme-h6-font-size-multiplier: (16 / 16);

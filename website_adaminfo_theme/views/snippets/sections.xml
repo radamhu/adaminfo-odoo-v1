@@ -1,0 +1,76 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+    <!-- Each section is a plain oe_structure zone: editable/drag-droppable in
+         Website Builder without any custom snippet registration. -->
+
+    <template id="section_hero" name="Hero">
+        <section id="hero" class="oe_structure s_text_block pt96 pb96 text-center">
+            <div class="container">
+                <h1>Adam Informatika</h1>
+                <p class="text-uppercase small fw-medium" style="letter-spacing: 3px;">Freelancer</p>
+                <p class="lead">Reliable solutions. Real impact.</p>
+                <p class="text-uppercase small fw-medium" style="letter-spacing: 2px;">
+                    Build &#183; Automate &#183; Deploy &#183; Scale
+                </p>
+                <a href="#contact" class="btn btn-primary">Get in touch</a>
+            </div>
+        </section>
+    </template>
+
+    <template id="section_about" name="About">
+        <section id="about" class="oe_structure s_text_block pt48 pb48">
+            <div class="container text-center">
+                <h2>About</h2>
+                <p>Freelance IT PM, DevOps engineer, and Python/Odoo developer —
+                   building and automating systems that hold up in production.</p>
+                <div class="d-flex flex-wrap justify-content-center gap-2">
+                    <span class="badge rounded-pill text-bg-secondary">AWS &#8212; Cloud Solutions</span>
+                    <span class="badge rounded-pill text-bg-secondary">Python &#8212; Developer</span>
+                    <span class="badge rounded-pill text-bg-secondary">Odoo &#8212; Developer</span>
+                    <span class="badge rounded-pill text-bg-secondary">DevOps &#8212; Automate &amp; Scale</span>
+                </div>
+            </div>
+        </section>
+    </template>
+
+    <template id="section_projects" name="Projects">
+        <section id="projects" class="oe_structure s_three_columns pt48 pb48">
+            <div class="container">
+                <h2>Projects</h2>
+                <div class="row">
+                    <div class="col-lg-6 pt16 pb16">
+                        <h3>Customer Operations Dashboard</h3>
+                        <p>Odoo addon surfacing per-customer financial and
+                           operational metrics on the partner form.</p>
+                        <a href="#" target="_blank" rel="noopener">View on GitHub</a>
+                    </div>
+                    <div class="col-lg-6 pt16 pb16">
+                        <h3>Odoo migration tooling</h3>
+                        <p>oec.sh API client and CLI suite: preflight,
+                           cutover-check, lifecycle, log-watch.</p>
+                        <a href="#" target="_blank" rel="noopener">View on GitHub</a>
+                    </div>
+                </div>
+            </div>
+        </section>
+    </template>
+
+    <template id="section_contact" name="Contact">
+        <section id="contact" class="oe_structure pt48 pb48">
+            <div class="container">
+                <h2>Contact</h2>
+                <!-- TODO: embed Odoo's native website contact form here
+                     (website.contactus's s_website_form block) once verified
+                     against this Odoo version's actual snippet template id —
+                     not hand-authored, to avoid guessing internal markup. -->
+                <p>
+                    <a href="/contactus">Contact form</a>
+                    &#8226;
+                    <a href="#" target="_blank" rel="noopener">LinkedIn</a>
+                    &#8226;
+                    <a href="#" target="_blank" rel="noopener">GitHub</a>
+                </p>
+            </div>
+        </section>
+    </template>
+</odoo>

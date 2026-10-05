@@ -1,0 +1,13 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+    <template id="view_home" inherit_id="website.homepage" name="Home">
+        <xpath expr="//div[@id='wrap']" position="replace">
+            <div id="wrap" class="oe_structure">
+                <t t-call="website_adaminfo_theme.section_hero"/>
+                <t t-call="website_adaminfo_theme.section_about"/>
+                <t t-call="website_adaminfo_theme.section_projects"/>
+                <t t-call="website_adaminfo_theme.section_contact"/>
+            </div>
+        </xpath>
+    </template>
+</odoo>
