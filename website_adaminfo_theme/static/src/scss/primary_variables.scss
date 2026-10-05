@@ -7,17 +7,21 @@
 // sampled directly from static/src/img/adaminformatika_logo.png and
 // matched against the Figma mockup (figma.com/design/3QAM2X6wAc7ZiZohAKUyja).
 //
-// Color palette wiring (2026-10-05, 2nd attempt): a plain REPLACE of
-// $o-color-palettes previously broke core's compile — it wiped out
-// 'base-1'/'base-2' entries core's own primary_variables.scss depends
-// on via map-get($o-color-palettes, 'base-1'). Read Odoo 18 core source
-// directly on adaminfo-dev-1869 (docker exec into the Odoo container)
-// and found the real, officially-shipped pattern in
-// odoo/addons/theme_test_custo/static/src/scss/primary_variables.scss:
-// map-merge (not replace) + register the name via
-// $o-selected-color-palettes-names so it shows in the Website Builder's
-// own color-palette picker — giving designers real UI control instead
-// of the dev-only plain-CSS workaround from the 1st attempt.
+// Color palette wiring (2026-10-05, 3rd attempt): the actual
+// $o-color-palettes map-merge lives in colors.scss, NOT here, and is
+// deliberately NOT prepended. Root cause of the 2nd attempt's
+// "Undefined variable: $o-color-palettes" crash: prepend means "insert
+// before EVERYTHING, including website module's own foundational
+// $o-color-palettes definition" — at that point the variable doesn't
+// exist yet at all. Confirmed against Odoo 18 core source read live on
+// adaminfo-dev-1869 (docker exec into the Odoo container): the official
+// odoo/addons/theme_test_custo reference module registers its
+// primary_variables.scss WITHOUT a prepend directive (data/ir_asset.xml,
+// plain <bundle>web._assets_primary_variables</bundle>), relying on
+// normal dependency order (website's foundational scss, which this
+// theme depends on via `depends: ['website']`, loads first). This file
+// still needs prepending for $o-website-values-palettes (that part was
+// already proven working), so only the palette-merge code moved out.
 // ===================================================================
 
 $o-theme-font-configs: (
@@ -30,23 +34,6 @@ $o-theme-font-configs: (
         'url': 'Playfair+Display:400,400i,700,700i',
     ),
 );
-
-$o-color-palettes: map-merge($o-color-palettes,
-    (
-        'adaminfo': (
-            'o-color-1': #D9A74A, // gold accent — buttons, links
-            'o-color-2': #B4966A, // dimmer gold — secondary/borders
-            'o-color-3': #091C30, // navy-light — cards, badges, footer
-            'o-color-4': #001323, // navy — page/header/hero bg
-            'o-color-5': #F5F5F5, // off-white — headings/body text on dark bg
-
-            'menu': 4,
-            'footer': 3,
-            'copyright': 3,
-        ),
-    )
-);
-$o-selected-color-palettes-names: append($o-selected-color-palettes-names, 'adaminfo');
 
 $o-website-values-palettes: (
     (

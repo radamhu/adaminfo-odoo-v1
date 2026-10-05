@@ -1,0 +1,23 @@
+// NOT prepended — must load AFTER website module's own
+// primary_variables.scss, which is where $o-color-palettes first gets
+// built (core's 'base-1'/'base-2' entries, map-get'd internally). A
+// prepended file runs before that exists at all ("Undefined variable").
+// Normal (non-prepend) manifest/ir.asset order relies on
+// `depends: ['website']` placing this after website's contribution —
+// matches the official odoo/addons/theme_test_custo reference pattern.
+$o-color-palettes: map-merge($o-color-palettes,
+    (
+        'adaminfo': (
+            'o-color-1': #D9A74A, // gold accent — buttons, links
+            'o-color-2': #B4966A, // dimmer gold — secondary/borders
+            'o-color-3': #091C30, // navy-light — cards, badges, footer
+            'o-color-4': #001323, // navy — page/header/hero bg
+            'o-color-5': #F5F5F5, // off-white — headings/body text on dark bg
+
+            'menu': 4,
+            'footer': 3,
+            'copyright': 3,
+        ),
+    )
+);
+$o-selected-color-palettes-names: append($o-selected-color-palettes-names, 'adaminfo');

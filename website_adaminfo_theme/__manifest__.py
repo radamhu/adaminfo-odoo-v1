@@ -15,6 +15,7 @@
     "assets": {
         "web._assets_primary_variables": [
             ("prepend", "website_adaminfo_theme/static/src/scss/primary_variables.scss"),
+            "website_adaminfo_theme/static/src/scss/colors.scss",
         ],
         "web.assets_frontend": [
             "website_adaminfo_theme/static/src/scss/theme.scss",
