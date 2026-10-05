@@ -19,27 +19,15 @@ $o-theme-font-configs: (
     ),
 );
 
-// Standalone define (not map-merge — $o-color-palettes doesn't exist
-// yet at prepend time). Core's own primary_variables.scss defines
-// $o-color-palettes with `!default`, so this value wins and becomes
-// the file's only palette.
-$o-color-palettes: (
-    'adaminfo': (
-        'o-color-1': #D9A74A, // gold accent — buttons, links
-        'o-color-2': #B4966A, // dimmer gold — secondary/borders
-        'o-color-3': #091C30, // navy-light — cards, badges
-        'o-color-4': #001323, // navy — page/header/hero bg ("content bg")
-        'o-color-5': #091C30, // navy-light — footer bg
-
-        'menu': 4,
-        'footer': 5,
-        'copyright': 5,
-    ),
-);
-
+// A standalone $o-color-palettes assignment broke core's own SCSS
+// compile (map-merge($o-color-palettes, ...) in core's primary_variables.scss
+// errored "must be a map" — confirmed live on adaminfo-dev-1869, 2026-10-05).
+// Reverted to the documented-safe pattern: reference an existing core
+// palette by name, apply actual brand colors as plain CSS in theme.scss
+// instead of touching core's Sass maps.
 $o-website-values-palettes: (
     (
-        'color-palettes-name': 'adaminfo',
+        'color-palettes-name': 'default-1',
 
         'font': 'Inter',
         'headings-font': 'Playfair Display', // h1 only in practice — h2-h6 reset to Inter below
