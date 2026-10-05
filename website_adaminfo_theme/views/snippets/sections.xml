@@ -36,7 +36,7 @@
     <template id="section_projects" name="Projects">
         <section id="projects" class="oe_structure s_three_columns pt48 pb48">
             <div class="container">
-                <h2>Projects</h2>
+                <h2 class="text-center">Projects</h2>
                 <div class="row">
                     <div class="col-lg-6 pt16 pb16">
                         <h3>Customer Operations Dashboard</h3>
@@ -58,7 +58,7 @@
     <template id="section_contact" name="Contact">
         <section id="contact" class="oe_structure pt48 pb48">
             <div class="container">
-                <h2>Contact</h2>
+                <h2 class="text-center">Contact</h2>
                 <!-- Real s_website_form markup, pulled verbatim from this env's
                      own /contactus page (adaminfo-dev-1869) after the website
                      module went live — not hand-authored. The hidden
@@ -130,7 +130,7 @@
                         </form>
                     </div>
                 </section>
-                <p class="pt-3">
+                <p>
                     <a href="#" target="_blank" rel="noopener">LinkedIn</a>
                     &#8226;
                     <a href="#" target="_blank" rel="noopener">GitHub</a>
