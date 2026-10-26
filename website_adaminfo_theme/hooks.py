@@ -22,6 +22,9 @@ def apply_site_defaults(env):
     with file_open("website_adaminfo_theme/static/src/img/adaminformatika_logo.png", "rb") as f:
         logo = base64.b64encode(f.read())
     website.write({
+        # Category Theme/* makes website's ir.asset drop this module's SCSS
+        # unless it is the website's theme (_get_active_addons_list).
+        "theme_id": env.ref("base.module_website_adaminfo_theme").id,
         "name": "Adam Informatika",
         "social_linkedin": LINKEDIN_URL,
         "logo": logo,
