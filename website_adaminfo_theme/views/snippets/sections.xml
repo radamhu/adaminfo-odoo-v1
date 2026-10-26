@@ -11,7 +11,7 @@
                 <h1 class="visually-hidden">Adam Informatika — Freelancer</h1>
                 <img src="/website_adaminfo_theme/static/src/img/adaminformatika_banner.webp"
                      class="img-fluid o_adaminfo_banner mb-4" width="1540" height="523"
-                     fetchpriority="high"
+                     loading="eager" fetchpriority="high"
                      alt="Adam Informatika, freelancer: AWS cloud solutions, Python developer, Odoo developer, DevOps automate and scale. Build, automate, deploy, scale. Reliable solutions, real impact."/>
                 <div class="d-flex flex-wrap justify-content-center gap-3">
                     <a href="#contact" class="btn btn-primary btn-lg">Get in touch</a>
@@ -28,10 +28,10 @@
                 <p class="mx-auto mb-4" style="max-width: 640px;">Freelance IT PM, DevOps engineer, and Python/Odoo developer —
                    building and automating systems that hold up in production.</p>
                 <div class="d-flex flex-wrap justify-content-center gap-2">
-                    <span class="badge rounded-pill o_adaminfo_pill">AWS &#8212; Cloud Solutions</span>
-                    <span class="badge rounded-pill o_adaminfo_pill">Python &#8212; Developer</span>
-                    <span class="badge rounded-pill o_adaminfo_pill">Odoo &#8212; Developer</span>
-                    <span class="badge rounded-pill o_adaminfo_pill">DevOps &#8212; Automate &amp; Scale</span>
+                    <span class="d-inline-block rounded-pill o_adaminfo_pill">AWS &#8212; Cloud Solutions</span>
+                    <span class="d-inline-block rounded-pill o_adaminfo_pill">Python &#8212; Developer</span>
+                    <span class="d-inline-block rounded-pill o_adaminfo_pill">Odoo &#8212; Developer</span>
+                    <span class="d-inline-block rounded-pill o_adaminfo_pill">DevOps &#8212; Automate &amp; Scale</span>
                 </div>
             </div>
         </section>

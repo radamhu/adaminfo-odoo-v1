@@ -15,10 +15,13 @@
     mix-blend-mode: lighten;
 }
 
+// Deliberately not a .badge: Odoo's .badge rule forces background/border
+// with !important.
 .o_adaminfo_pill {
     padding: 0.5em 1em;
     font-size: 0.8125rem;
     font-weight: 500;
+    line-height: 1;
     color: var(--o-color-1);
     background-color: transparent;
     border: 1px solid var(--o-color-2);
