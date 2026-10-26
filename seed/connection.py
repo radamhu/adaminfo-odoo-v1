@@ -15,10 +15,14 @@ class OdooClient:
         if not self.uid:
             raise ValueError(f'Authentication failed for user {username}')
 
-    def search_read(self, model: str, domain: list, fields: list, limit: int = 100) -> list:
+    def search_read(self, model: str, domain: list, fields: list, limit: int = 100,
+                    context: dict | None = None) -> list:
+        kwargs = {'fields': fields, 'limit': limit}
+        if context is not None:
+            kwargs['context'] = context
         return self._models.execute_kw(
             self.db, self.uid, self.password, model, 'search_read',
-            [domain], {'fields': fields, 'limit': limit}
+            [domain], kwargs
         )
 
     def create(self, model: str, vals: dict) -> int:
