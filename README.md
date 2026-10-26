@@ -46,13 +46,15 @@ Check these differences before reporting a mismatch. Tax is usually the main cau
 
 ```text
 website_adaminfo_theme/
-├── models/theme_website_adaminfo_theme.py  Theme post-copy hook
+├── hooks.py                                One-time site defaults (install + 18.0.1.1.0 migration)
+├── models/theme_website_adaminfo_theme.py  Theme post-copy hook (never fires: not a theme_* module)
 ├── static/src/scss/
 │   ├── primary_variables.scss              Fonts and website palette selection
 │   ├── colors.scss                         Color palette merge
-│   └── theme.scss                          Sticky-header scroll offset
-├── static/src/img/                         Logo
+│   └── theme.scss                          Scroll offset, banner blend, pills, project cards, focus rings
+├── static/src/img/                         Logo, hero banner (WebP)
 ├── views/snippets/sections.xml             Hero, About, Projects, and Contact
+├── views/footer.xml                        Minimalist footer text + copyright overrides
 └── data/                                   Menu and website logo records
 ```
 
@@ -64,6 +66,14 @@ The navy (`#001323`) and gold (`#D9A74A`) brand colors use Odoo's `$o-color-pale
 - Keep the palette merge in non-prepended `colors.scss`. Prepending it runs before Odoo defines the base palette.
 - Treat `menu`, `footer`, and `copyright` values as `o_cc` indexes (1–5), not `o-color-N` indexes.
 - Append the palette name to `$o-selected-color-palettes-names` so it appears in Website Builder.
+
+### Site defaults and footer
+
+`hooks.apply_site_defaults` runs once (on install, and from `migrations/18.0.1.1.0`): sets the website name, LinkedIn URL and logo, enables the Minimalist footer and writes the homepage meta description. It goes through `theme.utils.enable_view` with a website context, so it creates the same website-specific views the Builder would. It deliberately does not run on every upgrade, so later Builder choices stick.
+
+`views/footer.xml` only changes text inside core's Minimalist footer and copyright. If the Builder switches to another footer template, those overrides stop applying.
+
+The hero banner is drawn on pure black. `.o_adaminfo_banner` uses `mix-blend-mode: lighten`, so the section background chosen in the Builder shows through.
 
 For compile errors, inspect Odoo's shipped `primary_variables.scss` files. Website Builder (`/odoo/website`) shows CSS compilation errors; the public page may silently use cached assets.
 

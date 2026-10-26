@@ -1,6 +1,6 @@
 {
     "name": "Website Adaminfo Theme",
-    "version": "18.0.1.0.0",
+    "version": "18.0.1.1.0",
     "summary": "Personal portfolio theme for adaminformatika.hu",
     "category": "Theme/Creative",
     "author": "Adaminfo",
@@ -10,6 +10,7 @@
         "data/menu.xml",
         "data/website_logo.xml",
         "views/snippets/sections.xml",
+        "views/footer.xml",
         "data/website_page_data.xml",
     ],
     "assets": {
@@ -21,6 +22,7 @@
             "website_adaminfo_theme/static/src/scss/theme.scss",
         ],
     },
+    "post_init_hook": "post_init_hook",
     "installable": True,
     "auto_install": False,
     "application": False,

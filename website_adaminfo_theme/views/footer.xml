@@ -1,0 +1,36 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+    <!-- Text-only overrides of core's Minimalist footer: structure, classes and
+         Website Builder editability stay core's. Only applies while the
+         Minimalist footer is the active footer template (hooks.py enables it). -->
+    <template id="footer_minimalist_content" inherit_id="website.template_footer_minimalist" name="Adaminfo Footer Content">
+        <xpath expr="//div[@id='footer']//a[hasclass('o_footer_logo')]/img" position="replace">
+            <img t-attf-src="/web/image/website/#{website.id}/logo" class="img-fluid" alt="Adam Informatika logo" title="Adam Informatika"/>
+        </xpath>
+        <xpath expr="//div[@id='footer']//ul[hasclass('list-inline')]" position="replace">
+            <ul class="list-inline mb-0 ms-3">
+                <li class="list-inline-item"><a href="/">Home</a></li>
+                <li class="list-inline-item"><a href="/#about">About</a></li>
+                <li class="list-inline-item"><a href="/#projects">Projects</a></li>
+                <li class="list-inline-item"><a href="/contactus">Contact us</a></li>
+            </ul>
+        </xpath>
+        <xpath expr="//div[@id='footer']//div[hasclass('s_social_media')]/a[hasclass('s_social_media_github')]" position="replace">
+            <a href="/website/social/linkedin" class="s_social_media_linkedin" target="_blank" aria-label="LinkedIn">
+                <i class="fa fa-2x fa-linkedin m-1 o_editable_media"/>
+            </a>
+        </xpath>
+        <xpath expr="//div[@id='footer']//div[hasclass('s_social_media')]/a[hasclass('s_social_media_twitter')]" position="replace">
+            <a href="/" aria-label="Website">
+                <i class="fa fa-2x fa-globe m-1 o_editable_media"/>
+            </a>
+        </xpath>
+        <xpath expr="//div[@id='footer']//div[hasclass('s_social_media')]/a[hasclass('s_social_media_instagram')]" position="replace"/>
+    </template>
+
+    <template id="footer_copyright_name" inherit_id="website.footer_copyright_company_name" name="Adaminfo Copyright">
+        <xpath expr="//footer//span[hasclass('o_footer_copyright_name')]" position="replace">
+            <span class="o_footer_copyright_name me-2">Copyright &amp;copy; ADAM Roland E.V.</span>
+        </xpath>
+    </template>
+</odoo>
