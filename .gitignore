@@ -24,3 +24,6 @@ filestore/
 
 # Superpowers scratch state
 .superpowers/
+
+# Agent shared memory
+.agent-notes.md

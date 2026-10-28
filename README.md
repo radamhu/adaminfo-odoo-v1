@@ -10,6 +10,8 @@ website_adaminfo_theme/          adaminformatika.hu website theme
 seed/                            Demo/test data generators
 tests/                           Live XML-RPC integration tests
 docs/                            Project documentation
+.agent-notes.md                  Shared agent memory (gitignored, local only)
+.claude/                         Claude Code project settings and hooks
 ```
 
 ## Customer operations addon
@@ -106,6 +108,23 @@ Once this is live on prod, a designer can do real day-to-day editing through the
 - New homepage sections, new pages, or structural layout changes beyond what a snippet/section supports
 - Anything touching `primary_variables.scss` / `colors.scss` directly — see the SCSS gotchas above before anyone goes near these files again
 - Redeploys, module upgrades, DNS/infra
+
+## Agent memory
+
+Local, gitignored `.agent-notes.md` is shared memory for all coding agents. Plain markdown, no extra infrastructure.
+
+Sections:
+
+- `## Handoff`: current task, next step, blockers. Overwritten each session end.
+- `## Notes`: durable facts and gotchas. Edit in place, no duplicates.
+- `## Changelog`: newest first, one `### YYYY-MM-DD HH:MM <agent>` entry per session (done / next / gotchas).
+
+Rules:
+
+- Agents read it at session start and update it at session end, before `/clear`, or on a context alert.
+- Over 300 lines: fold changelog entries beyond the newest 20 into `## Notes`.
+- A Claude Code `Stop` hook (`.claude/hooks/notes-reminder.sh`, wired in `.claude/settings.json`) blocks once when files changed after the notes were last updated, prompting the agent to update them.
+- Missing file: the hook asks the agent to recreate it with the three sections.
 
 ## Setup
 
